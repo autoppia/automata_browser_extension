@@ -7,6 +7,7 @@ const state = {
 
 const els = {
   connectionBadge: document.getElementById("connectionBadge"),
+  runMeta: document.getElementById("runMeta"),
   apiKeyInput: document.getElementById("apiKeyInput"),
   connectBtn: document.getElementById("connectBtn"),
   logoutBtn: document.getElementById("logoutBtn"),
@@ -23,8 +24,13 @@ function setStatus(text) {
   els.statusLine.textContent = text;
 }
 
+function normalizeStatus(status) {
+  const allowed = new Set(["running", "pending", "succeeded", "cancelled", "failed"]);
+  return allowed.has(status) ? status : "pending";
+}
+
 function statusClass(status) {
-  return `status-chip status-${status}`;
+  return `status-chip status-${normalizeStatus(status)}`;
 }
 
 function truncate(text, maxLen = 72) {
@@ -38,11 +44,15 @@ function renderConnection() {
   if (state.authenticated) {
     els.connectionBadge.textContent = "Connected";
     els.connectionBadge.className = "badge badge-online";
+    els.connectBtn.textContent = "Connected";
   } else {
     els.connectionBadge.textContent = "Disconnected";
     els.connectionBadge.className = "badge badge-offline";
+    els.connectBtn.textContent = "Connect";
   }
 
+  els.apiKeyInput.disabled = state.authenticated;
+  els.connectBtn.disabled = state.authenticated;
   els.startRunBtn.disabled = !state.authenticated;
   els.cancelRunBtn.disabled = !state.currentRun;
 }
@@ -52,11 +62,14 @@ function renderTimeline() {
   els.timelineList.innerHTML = "";
 
   if (!run) {
+    els.runMeta.textContent = "Idle";
     const li = document.createElement("li");
     li.textContent = "No active run";
     els.timelineList.appendChild(li);
     return;
   }
+
+  els.runMeta.textContent = `${run.id.slice(0, 8)} • ${run.status}`;
 
   run.timeline.forEach((item) => {
     const li = document.createElement("li");
@@ -93,8 +106,16 @@ function renderHistory() {
         <strong>${truncate(run.prompt, 52)}</strong>
         <span class="${statusClass(run.status)}">${run.status}</span>
       </div>
-      <div style="margin-top:4px;color:#667788;">${new Date(run.updatedAt).toLocaleString()}</div>
+      <div style="margin-top:4px;color:#9bb0ce;">${new Date(run.updatedAt).toLocaleString()}</div>
     `;
+    li.style.cursor = "pointer";
+    li.title = "Open this run in timeline";
+    li.addEventListener("click", () => {
+      state.currentRun = run;
+      renderTimeline();
+      renderConnection();
+      setStatus(`Loaded run ${run.id}`);
+    });
     els.historyList.appendChild(li);
   });
 }
@@ -176,7 +197,6 @@ async function connectApiKey() {
     return;
   }
 
-  els.connectBtn.disabled = true;
   setStatus("Connecting...");
 
   try {
@@ -192,7 +212,7 @@ async function connectApiKey() {
   } catch (error) {
     setStatus(`Connect failed: ${error.message}`);
   } finally {
-    els.connectBtn.disabled = false;
+    renderConnection();
   }
 }
 

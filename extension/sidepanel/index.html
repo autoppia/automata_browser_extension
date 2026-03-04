@@ -7,48 +7,63 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app">
-      <header class="topbar">
-        <div>
+    <div class="backdrop"></div>
+    <main class="app">
+      <header class="hero card glass">
+        <div class="hero-main">
+          <p class="kicker">AUTOMATA CLOUD</p>
           <h1>Automata</h1>
-          <p class="subtitle">Cloud extension client (mock mode)</p>
+          <p class="subtitle">Browser extension client (mock mode)</p>
         </div>
-        <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
+        <div class="hero-chips">
+          <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
+          <span class="badge badge-mock">Mock API</span>
+        </div>
       </header>
 
-      <section class="card" id="authCard">
-        <h2>Connect</h2>
-        <p class="muted">Paste your AUTOMATA_API_KEY to exchange tokens.</p>
-        <div class="row">
-          <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
-          <button id="connectBtn">Connect</button>
+      <section class="card section">
+        <div class="section-head">
+          <h2>Connect</h2>
+          <button id="logoutBtn" class="btn ghost">Logout</button>
         </div>
-        <div class="row right">
-          <button id="logoutBtn" class="ghost">Logout</button>
+        <p class="muted">Use your <code>AUTOMATA_API_KEY</code>. Tokens are stored in extension storage, no cookies.</p>
+        <div class="input-wrap">
+          <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
+          <button id="connectBtn" class="btn primary">Connect</button>
         </div>
       </section>
 
-      <section class="card">
-        <h2>Run Prompt</h2>
+      <section class="card section">
+        <div class="section-head">
+          <h2>Run Prompt</h2>
+          <span id="runMeta" class="meta">Idle</span>
+        </div>
+
         <textarea id="promptInput" rows="4" placeholder="Ask Automata to do something in the browser..."></textarea>
         <input id="startUrlInput" type="text" placeholder="Optional start URL (https://...)" autocomplete="off" />
-        <div class="row">
-          <button id="startRunBtn">Run</button>
-          <button id="cancelRunBtn" class="danger">Cancel</button>
+
+        <div class="actions-row">
+          <button id="startRunBtn" class="btn primary wide">Run</button>
+          <button id="cancelRunBtn" class="btn danger">Cancel</button>
         </div>
+
         <p id="statusLine" class="status">Idle</p>
       </section>
 
-      <section class="card">
-        <h2>Timeline</h2>
+      <section class="card section">
+        <div class="section-head">
+          <h2>Timeline</h2>
+        </div>
         <ul id="timelineList" class="timeline"></ul>
       </section>
 
-      <section class="card">
-        <h2>Recent Runs</h2>
+      <section class="card section">
+        <div class="section-head">
+          <h2>Recent Runs</h2>
+        </div>
         <ul id="historyList" class="history"></ul>
       </section>
-    </div>
+    </main>
 
     <script type="module" src="app.js"></script>
   </body>
