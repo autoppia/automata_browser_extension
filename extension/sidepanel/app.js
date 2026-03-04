@@ -59,7 +59,7 @@ function renderConnection() {
     els.connectionBadge.className = "badge badge-offline";
   }
 
-  els.providerBadge.textContent = state.executionProvider === "local_operator" ? "Local" : "Cloud";
+  els.providerBadge.textContent = state.executionProvider === "local_operator" ? "Autoppia Operator" : "Cloud";
 
   const cloudAuthEnabled = canShowCloudAuth();
   const showAuthCard = cloudAuthEnabled && !state.authenticated;

@@ -7,35 +7,37 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="backdrop"></div>
+    <div class="bg-image"></div>
+    <div class="bg-grid"></div>
     <main class="app">
-      <header class="hero card glass">
-        <div class="hero-main">
-          <p class="kicker">AUTOMATA BROWSER EXTENSION</p>
-          <img class="brand-logo" src="../assets/images/logos/automata_dark.webp" alt="Automata" />
-          <p class="subtitle">Run prompts against local operator <code>127.0.0.1:5060/act</code></p>
-        </div>
-        <div class="hero-chips">
-          <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
-          <span id="providerBadge" class="badge badge-mock">Local</span>
-          <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
-        </div>
+      <header class="hero">
+        <img class="brand-logo" src="../assets/images/logos/automata_dark.webp" alt="Automata" />
+        <h1>
+          Fully Permissionless and Incentivized
+          <span>Web Operator</span>
+        </h1>
+        <p class="powered">Powered by <span>Bittensor</span></p>
+        <p class="hero-subtitle">What can I help you with?</p>
       </header>
 
-      <section class="card section">
-        <div class="section-head">
-          <h2>Run Prompt</h2>
-          <span id="runMeta" class="meta">Idle</span>
+      <section class="card prompt-card">
+        <div class="prompt-head">
+          <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
+          <div class="prompt-head-right">
+            <span id="providerBadge" class="badge badge-mock">Autoppia Operator</span>
+            <span id="runMeta" class="meta">Idle</span>
+            <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
+          </div>
         </div>
 
-        <textarea id="promptInput" rows="4" placeholder="Ask Automata to do something in the browser..."></textarea>
-        <input id="startUrlInput" type="text" placeholder="Optional start URL (https://...)" autocomplete="off" />
+        <textarea id="promptInput" rows="3" placeholder="Ask me anything..."></textarea>
+        <input id="startUrlInput" type="text" placeholder="Website URL... (optional)" autocomplete="off" />
 
         <div class="actions-row">
           <button id="startRunBtn" class="btn primary wide">Run</button>
           <button id="cancelRunBtn" class="btn danger">Cancel</button>
         </div>
-        <p class="tip">Tip: use <code>Ctrl/Cmd + Enter</code> to run</p>
+        <p class="tip">Tip: <code>Ctrl/Cmd + Enter</code></p>
 
         <p id="statusLine" class="status">Idle</p>
       </section>

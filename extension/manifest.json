@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Automata Browser Extension",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Side panel client for Automata Cloud (mock mode).",
   "permissions": [
     "storage",
