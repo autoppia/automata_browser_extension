@@ -12,23 +12,11 @@
     <main class="app">
       <header class="hero">
         <img class="brand-logo" src="../assets/images/logos/automata_dark.webp" alt="Automata" />
-        <h1>
-          Fully Permissionless and Incentivized
-          <span>Web Operator</span>
-        </h1>
         <p class="powered">Powered by <span>Bittensor</span></p>
-        <p class="hero-subtitle">What can I help you with?</p>
       </header>
 
       <section class="card prompt-card">
-        <div class="prompt-head">
-          <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
-          <div class="prompt-head-right">
-            <span id="providerBadge" class="badge badge-mock">Autoppia Operator</span>
-            <span id="runMeta" class="meta">Idle</span>
-            <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
-          </div>
-        </div>
+        <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
 
         <textarea id="promptInput" rows="3" placeholder="Ask me anything..."></textarea>
         <input id="startUrlInput" type="text" placeholder="Website URL... (optional)" autocomplete="off" />
@@ -39,7 +27,7 @@
         </div>
         <p class="tip">Tip: <code>Ctrl/Cmd + Enter</code></p>
 
-        <p id="statusLine" class="status">Idle</p>
+        <p id="statusLine" class="status">Ready.</p>
       </section>
 
       <section class="card section">

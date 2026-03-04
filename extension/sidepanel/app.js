@@ -27,7 +27,9 @@ const els = {
 };
 
 function setStatus(text) {
-  els.statusLine.textContent = text;
+  if (els.statusLine) {
+    els.statusLine.textContent = text;
+  }
 }
 
 function normalizeStatus(status) {
@@ -50,28 +52,51 @@ function canShowCloudAuth() {
   return state.executionProvider === "cloud";
 }
 
+function isRunActive(run) {
+  if (!run) {
+    return false;
+  }
+  return ["running", "pending"].includes(String(run.status || ""));
+}
+
 function renderConnection() {
-  if (state.localOperatorAvailable) {
-    els.connectionBadge.textContent = "Operator Ready";
-    els.connectionBadge.className = "badge badge-online";
-  } else {
-    els.connectionBadge.textContent = "Operator Offline";
-    els.connectionBadge.className = "badge badge-offline";
+  if (els.connectionBadge) {
+    if (state.localOperatorAvailable) {
+      els.connectionBadge.textContent = "Local Ready";
+      els.connectionBadge.className = "badge badge-online";
+    } else {
+      els.connectionBadge.textContent = "Local Unavailable";
+      els.connectionBadge.className = "badge badge-offline";
+    }
   }
 
-  els.providerBadge.textContent = state.executionProvider === "local_operator" ? "Autoppia Operator" : "Cloud";
+  if (els.providerBadge) {
+    els.providerBadge.textContent = state.executionProvider === "local_operator" ? "Local" : "Cloud";
+  }
 
   const cloudAuthEnabled = canShowCloudAuth();
   const showAuthCard = cloudAuthEnabled && !state.authenticated;
 
-  els.authCard.style.display = showAuthCard ? "" : "none";
-  els.compactLogoutBtn.style.display = cloudAuthEnabled && state.authenticated ? "inline-flex" : "none";
-  els.connectBtn.textContent = state.authenticated ? "Connected" : "Connect";
-  els.apiKeyInput.disabled = !showAuthCard;
-  els.connectBtn.disabled = !showAuthCard;
+  if (els.authCard) {
+    els.authCard.style.display = showAuthCard ? "" : "none";
+  }
+  if (els.compactLogoutBtn) {
+    els.compactLogoutBtn.style.display = cloudAuthEnabled && state.authenticated ? "inline-flex" : "none";
+  }
+  if (els.connectBtn) {
+    els.connectBtn.textContent = state.authenticated ? "Connected" : "Connect";
+    els.connectBtn.disabled = !showAuthCard;
+  }
+  if (els.apiKeyInput) {
+    els.apiKeyInput.disabled = !showAuthCard;
+  }
 
-  els.startRunBtn.disabled = !state.localOperatorAvailable;
-  els.cancelRunBtn.disabled = !state.currentRun;
+  if (els.startRunBtn) {
+    els.startRunBtn.disabled = isRunActive(state.currentRun);
+  }
+  if (els.cancelRunBtn) {
+    els.cancelRunBtn.disabled = !isRunActive(state.currentRun);
+  }
 }
 
 function renderTimeline() {
@@ -79,14 +104,18 @@ function renderTimeline() {
   els.timelineList.innerHTML = "";
 
   if (!run) {
-    els.runMeta.textContent = "Idle";
+    if (els.runMeta) {
+      els.runMeta.textContent = "Idle";
+    }
     const li = document.createElement("li");
     li.textContent = "No execution yet. Run a prompt to see step-by-step actions.";
     els.timelineList.appendChild(li);
     return;
   }
 
-  els.runMeta.textContent = `${run.id.slice(0, 8)} • ${run.status}`;
+  if (els.runMeta) {
+    els.runMeta.textContent = `${run.id.slice(0, 8)} • ${run.status}`;
+  }
 
   if (!run.timeline.length) {
     const li = document.createElement("li");
@@ -221,6 +250,10 @@ function startPolling(runId) {
 }
 
 async function connectApiKey() {
+  if (!els.apiKeyInput) {
+    setStatus("Cloud auth UI is unavailable");
+    return;
+  }
   const apiKey = els.apiKeyInput.value.trim();
   if (!apiKey) {
     setStatus("API key required");
@@ -265,8 +298,8 @@ async function logout() {
 }
 
 async function startRun() {
-  if (!state.localOperatorAvailable) {
-    setStatus("Local operator offline. Start autoppia_operator at 127.0.0.1:5060");
+  if (isRunActive(state.currentRun)) {
+    setStatus("A run is already in progress");
     return;
   }
 
@@ -298,7 +331,7 @@ async function startRun() {
   } catch (error) {
     setStatus(`Run start failed: ${error.message}`);
   } finally {
-    els.startRunBtn.disabled = !state.localOperatorAvailable;
+    renderConnection();
   }
 }
 
@@ -329,11 +362,21 @@ async function cancelRun() {
 }
 
 function bindEvents() {
-  els.connectBtn.addEventListener("click", connectApiKey);
-  els.logoutBtn.addEventListener("click", logout);
-  els.compactLogoutBtn.addEventListener("click", logout);
-  els.startRunBtn.addEventListener("click", startRun);
-  els.cancelRunBtn.addEventListener("click", cancelRun);
+  if (els.connectBtn) {
+    els.connectBtn.addEventListener("click", connectApiKey);
+  }
+  if (els.logoutBtn) {
+    els.logoutBtn.addEventListener("click", logout);
+  }
+  if (els.compactLogoutBtn) {
+    els.compactLogoutBtn.addEventListener("click", logout);
+  }
+  if (els.startRunBtn) {
+    els.startRunBtn.addEventListener("click", startRun);
+  }
+  if (els.cancelRunBtn) {
+    els.cancelRunBtn.addEventListener("click", cancelRun);
+  }
 
   els.promptInput.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
@@ -345,16 +388,12 @@ function bindEvents() {
 async function bootstrap() {
   bindEvents();
   renderAll();
-  setStatus("Loading...");
+  setStatus("Enter a prompt and press Run.");
 
   try {
     await loadAuthStatus();
     await loadHistory();
-    setStatus(
-      state.localOperatorAvailable
-        ? "Ready: local operator connected"
-        : "Operator offline: start autoppia_operator"
-    );
+    setStatus(state.localOperatorAvailable ? "Local operator detected." : "Local operator not reachable.");
   } catch (error) {
     setStatus(`Initialization failed: ${error.message}`);
   }
@@ -366,11 +405,7 @@ async function bootstrap() {
     try {
       const healthChanged = await loadAuthStatus();
       if (healthChanged && !state.currentRun) {
-        setStatus(
-          state.localOperatorAvailable
-            ? "Ready: local operator connected"
-            : "Operator offline: start autoppia_operator"
-        );
+        setStatus(state.localOperatorAvailable ? "Local operator detected." : "Local operator not reachable.");
       }
     } catch (_error) {
       // ignore periodic status errors
