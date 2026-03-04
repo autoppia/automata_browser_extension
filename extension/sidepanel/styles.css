@@ -98,6 +98,14 @@ body {
   gap: 6px;
 }
 
+.compact-logout {
+  display: none;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  line-height: 1;
+}
+
 .section {
   padding: 11px;
 }

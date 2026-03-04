@@ -11,6 +11,8 @@ let healthPollTimer = null;
 const els = {
   connectionBadge: document.getElementById("connectionBadge"),
   providerBadge: document.getElementById("providerBadge"),
+  compactLogoutBtn: document.getElementById("compactLogoutBtn"),
+  authCard: document.getElementById("authCard"),
   runMeta: document.getElementById("runMeta"),
   apiKeyInput: document.getElementById("apiKeyInput"),
   connectBtn: document.getElementById("connectBtn"),
@@ -60,10 +62,14 @@ function renderConnection() {
     els.connectBtn.textContent = "Connected";
     els.apiKeyInput.disabled = true;
     els.connectBtn.disabled = true;
+    els.authCard.style.display = "none";
+    els.compactLogoutBtn.style.display = "inline-flex";
   } else {
     els.connectBtn.textContent = "Connect";
     els.apiKeyInput.disabled = false;
     els.connectBtn.disabled = false;
+    els.authCard.style.display = "";
+    els.compactLogoutBtn.style.display = "none";
   }
 
   els.startRunBtn.disabled = !state.localOperatorAvailable;
@@ -317,6 +323,7 @@ async function cancelRun() {
 function bindEvents() {
   els.connectBtn.addEventListener("click", connectApiKey);
   els.logoutBtn.addEventListener("click", logout);
+  els.compactLogoutBtn.addEventListener("click", logout);
   els.startRunBtn.addEventListener("click", startRun);
   els.cancelRunBtn.addEventListener("click", cancelRun);
 
