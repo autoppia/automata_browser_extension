@@ -71,10 +71,12 @@ body {
   gap: 6px;
 }
 
-.hero-main h1 {
-  margin: 0;
-  font-size: 20px;
-  letter-spacing: -0.01em;
+.brand-logo {
+  display: block;
+  width: 172px;
+  max-width: 100%;
+  height: auto;
+  margin-top: 2px;
 }
 
 .kicker {

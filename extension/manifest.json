@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Automata Browser Extension",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Side panel client for Automata Cloud (mock mode).",
   "permissions": [
     "storage",
@@ -20,10 +20,20 @@
     "service_worker": "background/service_worker.js",
     "type": "module"
   },
+  "icons": {
+    "16": "assets/icons/autoppia-16.png",
+    "48": "assets/icons/autoppia-48.png",
+    "128": "assets/icons/autoppia-128.png"
+  },
   "side_panel": {
     "default_path": "sidepanel/index.html"
   },
   "action": {
-    "default_title": "Automata"
+    "default_title": "Automata",
+    "default_icon": {
+      "16": "assets/icons/autoppia-16.png",
+      "48": "assets/icons/autoppia-48.png",
+      "128": "assets/icons/autoppia-128.png"
+    }
   }
 }
