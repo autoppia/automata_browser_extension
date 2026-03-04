@@ -46,6 +46,10 @@ function truncate(text, maxLen = 72) {
   return text.length > maxLen ? `${text.slice(0, maxLen)}...` : text;
 }
 
+function canShowCloudAuth() {
+  return state.executionProvider === "cloud";
+}
+
 function renderConnection() {
   if (state.localOperatorAvailable) {
     els.connectionBadge.textContent = "Operator Ready";
@@ -55,22 +59,16 @@ function renderConnection() {
     els.connectionBadge.className = "badge badge-offline";
   }
 
-  els.providerBadge.textContent =
-    state.executionProvider === "local_operator" ? "Local Operator" : "Cloud";
+  els.providerBadge.textContent = state.executionProvider === "local_operator" ? "Local" : "Cloud";
 
-  if (state.authenticated) {
-    els.connectBtn.textContent = "Connected";
-    els.apiKeyInput.disabled = true;
-    els.connectBtn.disabled = true;
-    els.authCard.style.display = "none";
-    els.compactLogoutBtn.style.display = "inline-flex";
-  } else {
-    els.connectBtn.textContent = "Connect";
-    els.apiKeyInput.disabled = false;
-    els.connectBtn.disabled = false;
-    els.authCard.style.display = "";
-    els.compactLogoutBtn.style.display = "none";
-  }
+  const cloudAuthEnabled = canShowCloudAuth();
+  const showAuthCard = cloudAuthEnabled && !state.authenticated;
+
+  els.authCard.style.display = showAuthCard ? "" : "none";
+  els.compactLogoutBtn.style.display = cloudAuthEnabled && state.authenticated ? "inline-flex" : "none";
+  els.connectBtn.textContent = state.authenticated ? "Connected" : "Connect";
+  els.apiKeyInput.disabled = !showAuthCard;
+  els.connectBtn.disabled = !showAuthCard;
 
   els.startRunBtn.disabled = !state.localOperatorAvailable;
   els.cancelRunBtn.disabled = !state.currentRun;
@@ -83,27 +81,35 @@ function renderTimeline() {
   if (!run) {
     els.runMeta.textContent = "Idle";
     const li = document.createElement("li");
-    li.textContent = "No active run";
+    li.textContent = "No execution yet. Run a prompt to see step-by-step actions.";
     els.timelineList.appendChild(li);
     return;
   }
 
   els.runMeta.textContent = `${run.id.slice(0, 8)} • ${run.status}`;
 
-  run.timeline.forEach((item) => {
+  if (!run.timeline.length) {
     const li = document.createElement("li");
-    li.innerHTML = `
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
-        <strong>${truncate(item.title, 64)}</strong>
-        <span class="${statusClass(item.status)}">${item.status}</span>
-      </div>
-    `;
+    li.textContent = "Planning first action...";
     els.timelineList.appendChild(li);
-  });
+  } else {
+    run.timeline.forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "log-item";
+      li.innerHTML = `
+        <div class="item-row">
+          <strong class="item-title">${truncate(item.title, 72)}</strong>
+          <span class="${statusClass(item.status)}">${item.status}</span>
+        </div>
+      `;
+      els.timelineList.appendChild(li);
+    });
+  }
 
   if (run.result && run.result.content) {
     const li = document.createElement("li");
-    li.innerHTML = `<strong>Result</strong><br/>${truncate(run.result.content, 200)}`;
+    li.className = "log-item result-item";
+    li.innerHTML = `<strong>Result</strong><p class="result-text">${truncate(run.result.content, 240)}</p>`;
     els.timelineList.appendChild(li);
   }
 }
@@ -120,15 +126,15 @@ function renderHistory() {
 
   state.history.slice(0, 8).forEach((run) => {
     const li = document.createElement("li");
+    li.className = "log-item clickable";
     li.innerHTML = `
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
-        <strong>${truncate(run.prompt, 52)}</strong>
+      <div class="item-row">
+        <strong class="item-title">${truncate(run.prompt, 58)}</strong>
         <span class="${statusClass(run.status)}">${run.status}</span>
       </div>
-      <div style="margin-top:4px;color:#9bb0ce;">${new Date(run.updatedAt).toLocaleString()}</div>
+      <div class="item-meta">${new Date(run.updatedAt).toLocaleString()}</div>
     `;
-    li.style.cursor = "pointer";
-    li.title = "Open this run in timeline";
+    li.title = "Open this run in execution steps";
     li.addEventListener("click", () => {
       state.currentRun = run;
       renderTimeline();
@@ -158,6 +164,7 @@ function sendMessage(message) {
 }
 
 async function loadAuthStatus() {
+  const previousHealth = state.localOperatorAvailable;
   const response = await sendMessage({ type: "AUTH_STATUS" });
   if (!response.ok) {
     throw new Error(response.error || "Failed to load auth status");
@@ -167,6 +174,7 @@ async function loadAuthStatus() {
   state.localOperatorAvailable = Boolean(status.localOperatorAvailable);
   state.executionProvider = String(status.executionProvider || "local_operator");
   renderConnection();
+  return previousHealth !== state.localOperatorAvailable;
 }
 
 async function loadHistory() {
@@ -356,7 +364,14 @@ async function bootstrap() {
   }
   healthPollTimer = setInterval(async () => {
     try {
-      await loadAuthStatus();
+      const healthChanged = await loadAuthStatus();
+      if (healthChanged && !state.currentRun) {
+        setStatus(
+          state.localOperatorAvailable
+            ? "Ready: local operator connected"
+            : "Operator offline: start autoppia_operator"
+        );
+      }
     } catch (_error) {
       // ignore periodic status errors
     }

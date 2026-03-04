@@ -2,9 +2,9 @@
   --bg-a: #080d17;
   --bg-b: #0f1727;
   --bg-c: #1a1233;
-  --card: rgba(255, 255, 255, 0.08);
-  --card-strong: rgba(255, 255, 255, 0.12);
-  --border: rgba(255, 255, 255, 0.16);
+  --card: rgba(255, 255, 255, 0.06);
+  --card-strong: rgba(255, 255, 255, 0.11);
+  --border: rgba(255, 255, 255, 0.14);
   --text: #ecf1ff;
   --muted: #a3b3d2;
   --primary-1: #4c7bff;
@@ -46,17 +46,17 @@ body {
 .app {
   position: relative;
   z-index: 1;
-  padding: 12px;
+  padding: 12px 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 }
 
 .card {
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: var(--shadow);
+  background: linear-gradient(175deg, rgba(17, 27, 50, 0.86), rgba(16, 21, 38, 0.68));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
 .glass {
@@ -65,10 +65,10 @@ body {
 }
 
 .hero {
-  padding: 12px;
+  padding: 11px 12px;
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .hero-main h1 {
@@ -89,6 +89,14 @@ body {
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 12px;
+  line-height: 1.3;
+}
+
+.subtitle code {
+  background: rgba(255, 255, 255, 0.11);
+  border-radius: 999px;
+  padding: 1px 5px;
+  color: #d5e9ff;
 }
 
 .hero-chips {
@@ -107,7 +115,11 @@ body {
 }
 
 .section {
-  padding: 11px;
+  padding: 10px;
+}
+
+#authCard {
+  display: none;
 }
 
 .section-head {
@@ -231,8 +243,21 @@ textarea:focus {
   flex: 1;
 }
 
+.tip {
+  margin: 7px 0 0;
+  color: #93a9ca;
+  font-size: 11px;
+}
+
+.tip code {
+  background: rgba(255, 255, 255, 0.11);
+  border-radius: 999px;
+  padding: 1px 5px;
+  color: #dbe9ff;
+}
+
 .status {
-  margin: 8px 0 0;
+  margin: 7px 0 0;
   color: var(--muted);
   font-size: 12px;
 }
@@ -276,11 +301,46 @@ textarea:focus {
 
 .timeline li,
 .history li {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  background: rgba(8, 13, 27, 0.42);
+  background: rgba(7, 11, 23, 0.5);
   padding: 8px;
   font-size: 12px;
+}
+
+.log-item.clickable {
+  cursor: pointer;
+}
+
+.log-item.clickable:hover {
+  border-color: rgba(112, 161, 255, 0.56);
+  background: rgba(10, 17, 34, 0.66);
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.item-title {
+  color: #e8f1ff;
+}
+
+.item-meta {
+  margin-top: 4px;
+  color: #9bb0ce;
+}
+
+.result-item strong {
+  color: #9fd6ff;
+}
+
+.result-text {
+  margin: 6px 0 0;
+  line-height: 1.35;
+  color: #deebff;
 }
 
 .status-chip {

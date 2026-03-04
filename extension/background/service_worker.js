@@ -79,6 +79,15 @@ function isSupportedTabUrl(url) {
   return !blockedPrefixes.some((prefix) => url.startsWith(prefix));
 }
 
+function isHttpUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch (_error) {
+    return false;
+  }
+}
+
 async function waitForTabComplete(tabId, timeoutMs = 15000) {
   const tab = await chrome.tabs.get(tabId);
   if (tab.status === "complete") {
@@ -707,20 +716,33 @@ async function startRun(payload) {
     throw error;
   }
 
-  const tabCtx = await getActiveTabContext();
-  if (typeof tabCtx.tabId !== "number") {
-    const error = new Error("No active tab detected");
-    error.code = "active_tab_missing";
-    throw error;
-  }
-
-  if (!isSupportedTabUrl(tabCtx.url)) {
-    const error = new Error("Open a regular http/https page first");
-    error.code = "unsupported_tab_url";
-    throw error;
-  }
-
   const startUrl = String(payload.startUrl || "").trim();
+  if (startUrl && !isHttpUrl(startUrl)) {
+    const error = new Error("Start URL must begin with http:// or https://");
+    error.code = "invalid_start_url";
+    throw error;
+  }
+
+  let tabCtx = await getActiveTabContext();
+  const activeTabSupported = typeof tabCtx.tabId === "number" && isSupportedTabUrl(tabCtx.url);
+
+  if (!activeTabSupported) {
+    if (!startUrl) {
+      const error = new Error("Open a regular http/https page first or provide Start URL");
+      error.code = "unsupported_tab_url";
+      throw error;
+    }
+
+    const createdTab = await chrome.tabs.create({ url: startUrl, active: true });
+    if (!createdTab || typeof createdTab.id !== "number") {
+      const error = new Error("Could not open start URL in a browser tab");
+      error.code = "tab_create_failed";
+      throw error;
+    }
+
+    await waitForTabComplete(createdTab.id);
+    tabCtx = await getTabContext(createdTab.id);
+  }
 
   const run = {
     id: randomId("run"),

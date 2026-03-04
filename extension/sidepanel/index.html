@@ -11,28 +11,16 @@
     <main class="app">
       <header class="hero card glass">
         <div class="hero-main">
-          <p class="kicker">AUTOMATA LOCAL OPERATOR</p>
+          <p class="kicker">AUTOMATA BROWSER EXTENSION</p>
           <h1>Automata</h1>
-          <p class="subtitle">Live extension runner against local /act endpoint</p>
+          <p class="subtitle">Run prompts against local operator <code>127.0.0.1:5060/act</code></p>
         </div>
         <div class="hero-chips">
           <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
-          <span id="providerBadge" class="badge badge-mock">Local Operator</span>
-          <button id="compactLogoutBtn" class="btn ghost compact-logout">Logout</button>
+          <span id="providerBadge" class="badge badge-mock">Local</span>
+          <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
         </div>
       </header>
-
-      <section id="authCard" class="card section">
-        <div class="section-head">
-          <h2>Connect</h2>
-          <button id="logoutBtn" class="btn ghost">Logout</button>
-        </div>
-        <p class="muted">Optional: cloud token bootstrap with <code>AUTOMATA_API_KEY</code>. For browser actions this panel uses local operator <code>127.0.0.1:5060</code>.</p>
-        <div class="input-wrap">
-          <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
-          <button id="connectBtn" class="btn primary">Connect</button>
-        </div>
-      </section>
 
       <section class="card section">
         <div class="section-head">
@@ -47,13 +35,15 @@
           <button id="startRunBtn" class="btn primary wide">Run</button>
           <button id="cancelRunBtn" class="btn danger">Cancel</button>
         </div>
+        <p class="tip">Tip: use <code>Ctrl/Cmd + Enter</code> to run</p>
 
         <p id="statusLine" class="status">Idle</p>
       </section>
 
       <section class="card section">
         <div class="section-head">
-          <h2>Timeline</h2>
+          <h2>Execution Steps</h2>
+          <span class="meta">Live log</span>
         </div>
         <ul id="timelineList" class="timeline"></ul>
       </section>
@@ -63,6 +53,18 @@
           <h2>Recent Runs</h2>
         </div>
         <ul id="historyList" class="history"></ul>
+      </section>
+
+      <section id="authCard" class="card section">
+        <div class="section-head">
+          <h2>Cloud Access (Optional)</h2>
+          <button id="logoutBtn" class="btn ghost">Logout</button>
+        </div>
+        <p class="muted">Only needed for future cloud calls. Local browser execution does not require login.</p>
+        <div class="input-wrap">
+          <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
+          <button id="connectBtn" class="btn primary">Connect</button>
+        </div>
       </section>
     </main>
 
