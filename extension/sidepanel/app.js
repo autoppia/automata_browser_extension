@@ -1,12 +1,16 @@
 const state = {
   authenticated: false,
+  localOperatorAvailable: false,
+  executionProvider: "local_operator",
   currentRun: null,
   pollTimer: null,
   history: []
 };
+let healthPollTimer = null;
 
 const els = {
   connectionBadge: document.getElementById("connectionBadge"),
+  providerBadge: document.getElementById("providerBadge"),
   runMeta: document.getElementById("runMeta"),
   apiKeyInput: document.getElementById("apiKeyInput"),
   connectBtn: document.getElementById("connectBtn"),
@@ -41,19 +45,28 @@ function truncate(text, maxLen = 72) {
 }
 
 function renderConnection() {
-  if (state.authenticated) {
-    els.connectionBadge.textContent = "Connected";
+  if (state.localOperatorAvailable) {
+    els.connectionBadge.textContent = "Operator Ready";
     els.connectionBadge.className = "badge badge-online";
-    els.connectBtn.textContent = "Connected";
   } else {
-    els.connectionBadge.textContent = "Disconnected";
+    els.connectionBadge.textContent = "Operator Offline";
     els.connectionBadge.className = "badge badge-offline";
-    els.connectBtn.textContent = "Connect";
   }
 
-  els.apiKeyInput.disabled = state.authenticated;
-  els.connectBtn.disabled = state.authenticated;
-  els.startRunBtn.disabled = !state.authenticated;
+  els.providerBadge.textContent =
+    state.executionProvider === "local_operator" ? "Local Operator" : "Cloud";
+
+  if (state.authenticated) {
+    els.connectBtn.textContent = "Connected";
+    els.apiKeyInput.disabled = true;
+    els.connectBtn.disabled = true;
+  } else {
+    els.connectBtn.textContent = "Connect";
+    els.apiKeyInput.disabled = false;
+    els.connectBtn.disabled = false;
+  }
+
+  els.startRunBtn.disabled = !state.localOperatorAvailable;
   els.cancelRunBtn.disabled = !state.currentRun;
 }
 
@@ -143,7 +156,10 @@ async function loadAuthStatus() {
   if (!response.ok) {
     throw new Error(response.error || "Failed to load auth status");
   }
-  state.authenticated = Boolean(response.status && response.status.authenticated);
+  const status = response.status || {};
+  state.authenticated = Boolean(status.authenticated);
+  state.localOperatorAvailable = Boolean(status.localOperatorAvailable);
+  state.executionProvider = String(status.executionProvider || "local_operator");
   renderConnection();
 }
 
@@ -235,8 +251,8 @@ async function logout() {
 }
 
 async function startRun() {
-  if (!state.authenticated) {
-    setStatus("Connect first");
+  if (!state.localOperatorAvailable) {
+    setStatus("Local operator offline. Start autoppia_operator at 127.0.0.1:5060");
     return;
   }
 
@@ -268,7 +284,7 @@ async function startRun() {
   } catch (error) {
     setStatus(`Run start failed: ${error.message}`);
   } finally {
-    els.startRunBtn.disabled = !state.authenticated;
+    els.startRunBtn.disabled = !state.localOperatorAvailable;
   }
 }
 
@@ -319,10 +335,25 @@ async function bootstrap() {
   try {
     await loadAuthStatus();
     await loadHistory();
-    setStatus(state.authenticated ? "Ready" : "Disconnected");
+    setStatus(
+      state.localOperatorAvailable
+        ? "Ready: local operator connected"
+        : "Operator offline: start autoppia_operator"
+    );
   } catch (error) {
     setStatus(`Initialization failed: ${error.message}`);
   }
+
+  if (healthPollTimer) {
+    clearInterval(healthPollTimer);
+  }
+  healthPollTimer = setInterval(async () => {
+    try {
+      await loadAuthStatus();
+    } catch (_error) {
+      // ignore periodic status errors
+    }
+  }, 4000);
 }
 
 bootstrap();

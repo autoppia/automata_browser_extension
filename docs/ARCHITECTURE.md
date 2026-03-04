@@ -2,8 +2,9 @@
 
 ## Product boundaries
 
-- Extension talks to Automata Cloud API.
-- Local `automata` package is separate and not required by extension.
+- Extension executes browser runs using local `autoppia_operator` (`127.0.0.1:5060`).
+- Local `automata` package remains separate (CLI/scripts).
+- Cloud auth contract exists but is mocked for now.
 - No cookie based web login.
 
 ## Components
@@ -11,13 +12,22 @@
 - `service_worker` (background):
   - owns auth and token refresh logic
   - owns run state machine
-  - is the only place that would call cloud API
+  - captures page snapshot from active tab
+  - calls local `/act` endpoint and executes returned actions via `chrome.scripting`
 - `side_panel` (UI):
   - collects API key
   - sends prompt/start/cancel commands
   - renders run timeline and result
 
-## Auth model (implemented with mocks)
+## Local run flow (implemented)
+
+1. User submits prompt from side panel.
+2. Background captures `url + snapshot_html` from active tab.
+3. Background calls local `POST /act`.
+4. Background executes returned actions in active tab.
+5. Timeline/history update in side panel.
+
+## Auth model (implemented with mocks for cloud)
 
 1. User pastes `AUTOMATA_API_KEY` in side panel.
 2. Background calls exchange endpoint (mock):

@@ -11,13 +11,13 @@
     <main class="app">
       <header class="hero card glass">
         <div class="hero-main">
-          <p class="kicker">AUTOMATA CLOUD</p>
+          <p class="kicker">AUTOMATA LOCAL OPERATOR</p>
           <h1>Automata</h1>
-          <p class="subtitle">Browser extension client (mock mode)</p>
+          <p class="subtitle">Live extension runner against local /act endpoint</p>
         </div>
         <div class="hero-chips">
           <span id="connectionBadge" class="badge badge-offline">Disconnected</span>
-          <span class="badge badge-mock">Mock API</span>
+          <span id="providerBadge" class="badge badge-mock">Local Operator</span>
         </div>
       </header>
 
@@ -26,7 +26,7 @@
           <h2>Connect</h2>
           <button id="logoutBtn" class="btn ghost">Logout</button>
         </div>
-        <p class="muted">Use your <code>AUTOMATA_API_KEY</code>. Tokens are stored in extension storage, no cookies.</p>
+        <p class="muted">Optional: cloud token bootstrap with <code>AUTOMATA_API_KEY</code>. For browser actions this panel uses local operator <code>127.0.0.1:5060</code>.</p>
         <div class="input-wrap">
           <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
           <button id="connectBtn" class="btn primary">Connect</button>

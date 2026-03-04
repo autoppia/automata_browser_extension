@@ -6,10 +6,15 @@
   "permissions": [
     "storage",
     "sidePanel",
-    "tabs"
+    "tabs",
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
-    "https://api.automata.cloud/*"
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://api.automata.cloud/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background/service_worker.js",
