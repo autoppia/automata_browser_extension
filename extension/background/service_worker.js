@@ -11,6 +11,7 @@ const MAX_STEPS = 12;
 const LOCAL_OPERATOR_BASE_URL = "http://127.0.0.1:5060";
 const LOCAL_OPERATOR_ACT_URL = `${LOCAL_OPERATOR_BASE_URL}/act`;
 const LOCAL_OPERATOR_HEALTH_URL = `${LOCAL_OPERATOR_BASE_URL}/health`;
+const DEFAULT_FALLBACK_START_URL = "https://example.com/";
 
 const tokenManager = createTokenManager({
   exchangeApiKey,
@@ -727,15 +728,10 @@ async function startRun(payload) {
   const activeTabSupported = typeof tabCtx.tabId === "number" && isSupportedTabUrl(tabCtx.url);
 
   if (!activeTabSupported) {
-    if (!startUrl) {
-      const error = new Error("Open a regular http/https page first or provide Start URL");
-      error.code = "unsupported_tab_url";
-      throw error;
-    }
-
-    const createdTab = await chrome.tabs.create({ url: startUrl, active: true });
+    const fallbackUrl = startUrl || DEFAULT_FALLBACK_START_URL;
+    const createdTab = await chrome.tabs.create({ url: fallbackUrl, active: true });
     if (!createdTab || typeof createdTab.id !== "number") {
-      const error = new Error("Could not open start URL in a browser tab");
+      const error = new Error("Could not open a browser tab for execution");
       error.code = "tab_create_failed";
       throw error;
     }
