@@ -46,7 +46,7 @@ async function fetchWithTimeout(url, init = {}, timeoutMs = 8000) {
 
 async function isLocalOperatorHealthy() {
   try {
-    const response = await fetchWithTimeout(LOCAL_OPERATOR_HEALTH_URL, {}, 2000);
+    const response = await fetchWithTimeout(LOCAL_OPERATOR_HEALTH_URL, {}, 3500);
     return response.ok;
   } catch (_error) {
     return false;
@@ -435,22 +435,37 @@ function actionTitle(action) {
 }
 
 async function callLocalAct(payload) {
-  const response = await fetchWithTimeout(
-    LOCAL_OPERATOR_ACT_URL,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    },
-    90000
-  );
+  let lastError = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const response = await fetchWithTimeout(
+        LOCAL_OPERATOR_ACT_URL,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        },
+        90000
+      );
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`operator_act_error:${response.status}:${body.slice(0, 300)}`);
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`operator_act_error:${response.status}:${body.slice(0, 300)}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) {
+        await sleep(350);
+      }
+    }
   }
 
-  return response.json();
+  if (lastError && lastError.message) {
+    throw new Error(lastError.message);
+  }
+  throw new Error("local_operator_unreachable");
 }
 
 function normalizeActions(rawActions) {
@@ -541,10 +556,6 @@ async function runLoop(runId) {
     const run = runs.get(runId);
     if (!run) {
       return;
-    }
-
-    if (!(await isLocalOperatorHealthy())) {
-      throw new Error("local_operator_unreachable: start autoppia_operator at 127.0.0.1:5060");
     }
 
     const tabId = run.tabContext.tabId;
