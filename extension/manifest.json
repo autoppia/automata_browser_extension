@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Automata Browser Extension",
+  "version": "0.1.0",
+  "description": "Side panel client for Automata Cloud (mock mode).",
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://api.automata.cloud/*"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
+  },
+  "action": {
+    "default_title": "Automata"
+  }
+}
