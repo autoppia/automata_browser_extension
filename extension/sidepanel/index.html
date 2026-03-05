@@ -15,47 +15,131 @@
         <p class="powered">Powered by <span>Bittensor</span></p>
       </header>
 
-      <section class="card prompt-card">
-        <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
+      <nav class="view-nav" aria-label="Sections">
+        <button id="navRunsBtn" class="view-btn active" type="button">Run</button>
+        <button id="navAutomationsBtn" class="view-btn" type="button">Automations</button>
+      </nav>
 
-        <textarea id="promptInput" rows="3" placeholder="Ask me anything..."></textarea>
-        <input id="startUrlInput" type="text" placeholder="Website URL... (optional)" autocomplete="off" />
+      <div id="runsView" class="view-pane active">
+        <section id="sessionsCard" class="card section">
+          <div class="section-head">
+            <h2>Sessions</h2>
+          </div>
+          <div class="input-wrap session-create-row">
+            <input
+              id="newSessionNameInput"
+              type="text"
+              placeholder="Session name (optional)"
+              autocomplete="off"
+              aria-label="Session name"
+            />
+            <button id="newSessionBtn" class="btn ghost btn-mini">New Session</button>
+          </div>
+          <div id="sessionsList" class="session-chips"></div>
+        </section>
 
-        <div class="actions-row">
-          <button id="startRunBtn" class="btn primary wide">Run</button>
-          <button id="cancelRunBtn" class="btn danger">Cancel</button>
-        </div>
-        <p class="tip">Tip: <code>Ctrl/Cmd + Enter</code></p>
+        <section class="card prompt-card">
+          <button id="compactLogoutBtn" class="btn ghost compact-logout">Cloud Logout</button>
 
-        <p id="statusLine" class="status">Ready.</p>
-      </section>
+          <textarea
+            id="promptInput"
+            rows="3"
+            placeholder="Ask me anything..."
+            aria-label="Task prompt"
+          ></textarea>
+          <input
+            id="startUrlInput"
+            type="text"
+            placeholder="Website URL... (optional)"
+            autocomplete="off"
+            aria-label="Start URL"
+          />
+          <div class="input-wrap operator-base-row">
+            <input
+              id="operatorBaseInput"
+              type="text"
+              placeholder="Operator URL (http://127.0.0.1:18060)"
+              autocomplete="off"
+              aria-label="Operator URL"
+            />
+            <button id="saveOperatorBaseBtn" class="btn ghost btn-mini">Set</button>
+          </div>
+          <div id="userInputCard" class="user-input-card">
+            <p id="userInputPrompt" class="user-input-prompt"></p>
+            <div class="input-wrap">
+              <input
+                id="userInputAnswer"
+                type="text"
+                placeholder="Write your answer..."
+                autocomplete="off"
+                aria-label="User input answer"
+              />
+              <button id="userInputSendBtn" class="btn primary">Send</button>
+            </div>
+          </div>
 
-      <section class="card section">
-        <div class="section-head">
-          <h2>Execution Steps</h2>
-          <span class="meta">Live log</span>
-        </div>
-        <ul id="timelineList" class="timeline"></ul>
-      </section>
+          <div class="actions-row">
+            <button id="startRunBtn" class="btn primary wide">Run</button>
+            <button id="cancelRunBtn" class="btn danger">Cancel</button>
+          </div>
+          <div class="prompt-foot">
+            <p class="tip">Tip: <code>Ctrl/Cmd + Enter</code></p>
+            <p id="promptMeta" class="tip tip-right">0 chars</p>
+          </div>
 
-      <section class="card section">
-        <div class="section-head">
-          <h2>Recent Runs</h2>
-        </div>
-        <ul id="historyList" class="history"></ul>
-      </section>
+          <p id="statusLine" class="status" aria-live="polite">Ready.</p>
+          <div id="errorHintCard" class="error-hint" hidden>
+            <p id="errorHintTitle" class="error-hint-title"></p>
+            <p id="errorHintText" class="error-hint-text"></p>
+            <div class="error-hint-actions">
+              <button id="errorHintActionBtn" class="btn ghost btn-mini">Fix</button>
+              <button id="errorHintDismissBtn" class="btn ghost btn-mini">Dismiss</button>
+            </div>
+          </div>
+        </section>
 
-      <section id="authCard" class="card section">
-        <div class="section-head">
-          <h2>Cloud Access (Optional)</h2>
-          <button id="logoutBtn" class="btn ghost">Logout</button>
-        </div>
-        <p class="muted">Only needed for future cloud calls. Local browser execution does not require login.</p>
-        <div class="input-wrap">
-          <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
-          <button id="connectBtn" class="btn primary">Connect</button>
-        </div>
-      </section>
+        <section id="chatCard" class="card section">
+          <div class="section-head">
+            <h2>Chat</h2>
+            <button id="clearHistoryBtn" class="btn ghost btn-mini">Clear</button>
+          </div>
+          <ul id="historyList" class="history"></ul>
+        </section>
+
+        <section id="authCard" class="card section">
+          <div class="section-head">
+            <h2>Cloud Access (Optional)</h2>
+            <button id="logoutBtn" class="btn ghost">Logout</button>
+          </div>
+          <p class="muted">Only needed for future cloud calls. Local browser execution does not require login.</p>
+          <div class="input-wrap">
+            <input id="apiKeyInput" type="password" placeholder="amk_..." autocomplete="off" />
+            <button id="connectBtn" class="btn primary">Connect</button>
+          </div>
+        </section>
+      </div>
+
+      <div id="automationsView" class="view-pane">
+        <section id="automationsCard" class="card section">
+          <div class="section-head">
+            <h2>Automations</h2>
+            <span id="recordingBadge" class="meta">Idle</span>
+          </div>
+          <p class="muted">Record local workflows, replay them, and expose them to agent planning via <code>RunWorkflowAction</code>.</p>
+          <div class="input-wrap automation-controls">
+            <input
+              id="automationNameInput"
+              type="text"
+              placeholder="Workflow name (optional)"
+              autocomplete="off"
+              aria-label="Workflow name"
+            />
+            <button id="recordStartBtn" class="btn primary btn-mini">Record</button>
+            <button id="recordStopBtn" class="btn ghost btn-mini">Stop & Save</button>
+          </div>
+          <ul id="automationsList" class="history"></ul>
+        </section>
+      </div>
     </main>
 
     <script type="module" src="app.js"></script>

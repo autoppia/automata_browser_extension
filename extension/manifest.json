@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Automata Browser Extension",
-  "version": "0.2.5",
-  "description": "Side panel client for Automata Cloud (mock mode).",
+  "version": "0.3.0",
+  "description": "Side panel web automation agent for local Automata Operator.",
+  "minimum_chrome_version": "116",
+  "homepage_url": "https://automata.autoppia.com/",
   "permissions": [
     "storage",
     "sidePanel",
@@ -11,10 +13,11 @@
     "scripting"
   ],
   "host_permissions": [
+    "http://*/*",
+    "https://*/*",
     "http://127.0.0.1/*",
     "http://localhost/*",
-    "https://api.automata.cloud/*",
-    "<all_urls>"
+    "https://api.automata.cloud/*"
   ],
   "background": {
     "service_worker": "background/service_worker.js",
@@ -29,7 +32,7 @@
     "default_path": "sidepanel/index.html"
   },
   "action": {
-    "default_title": "Automata",
+    "default_title": "Automata Browser Extension",
     "default_icon": {
       "16": "assets/icons/autoppia-16.png",
       "48": "assets/icons/autoppia-48.png",
