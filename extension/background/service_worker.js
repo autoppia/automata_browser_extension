@@ -43,11 +43,6 @@ function isDoneActionType(typeValue) {
   return t === "doneaction" || t === "finishaction" || t === "done" || t === "finish";
 }
 
-function isReportResultActionType(typeValue) {
-  const t = String(typeValue || "").trim().toLowerCase().replaceAll("-", "_");
-  return t === "reportresultaction" || t === "report_result" || t === "report_result_action";
-}
-
 function isRequestUserInputActionType(typeValue) {
   const t = String(typeValue || "").trim().toLowerCase().replaceAll("-", "_");
   return t === "requestuserinputaction" || t === "request_user_input" || t === "request_user_input_action";
@@ -66,9 +61,7 @@ function normalizeActionType(rawType) {
   if (key === "wait") return "WaitAction";
   if (key === "scroll") return "ScrollAction";
   if (key === "done" || key === "finish") return "DoneAction";
-  if (key === "report_result" || key === "report_result_action" || key === "reportresult" || key === "reportresultaction") {
-    return "ReportResultAction";
-  }
+  if (key === "report_result" || key === "report_result_action" || key === "reportresult" || key === "reportresultaction") return "DoneAction";
   if (key === "run_workflow" || key === "runworkflow" || key === "workflow") return "RunWorkflowAction";
   if (key === "send_keys" || key === "sendkeys" || key === "sendkeysiwaaction") return "SendKeysIWAAction";
   if (key === "request_input" || key === "request_user_input" || key === "request_user_input_action" || key === "requestuserinputaction") {
@@ -1729,13 +1722,6 @@ function actionTitle(action) {
     const wfId = String(action.workflow_id || action.automation_id || action.workflow_name || "workflow");
     return `Run workflow ${wfId}`;
   }
-  if (isReportResultActionType(type)) {
-    const content = extractFinalTextFromResultAction(action);
-    if (content) {
-      return `Report result: ${content.slice(0, 64)}`;
-    }
-    return "Report final result";
-  }
   if (type === "DoneAction" || type === "FinishAction") {
     return "Mark task completed";
   }
@@ -1888,10 +1874,10 @@ function normalizeActResponse(rawResponse) {
     actions = actions.slice(0, 1);
   }
 
-  const terminalActions = actions.filter((a) => isDoneActionType(a.type) || isReportResultActionType(a.type));
-  const restActions = actions.filter((a) => !isDoneActionType(a.type) && !isReportResultActionType(a.type));
+  const terminalActions = actions.filter((a) => isDoneActionType(a.type));
+  const restActions = actions.filter((a) => !isDoneActionType(a.type));
   actions = [...restActions, ...terminalActions];
-  const done = Boolean(payload.done) || actions.some((a) => isDoneActionType(a.type) || isReportResultActionType(a.type));
+  const done = Boolean(payload.done) || actions.some((a) => isDoneActionType(a.type));
   const finalText = firstTextCandidate(
     payload.content,
     payload.final_text,
@@ -1902,7 +1888,6 @@ function normalizeActResponse(rawResponse) {
     payload.output,
     payload.content,
     payload.message,
-    actions.filter((a) => isReportResultActionType(a.type)).map(extractFinalTextFromResultAction),
     actions.filter((a) => isDoneActionType(a.type)).map(extractFinalTextFromDoneAction)
   );
 
@@ -2117,13 +2102,6 @@ async function executeAction(tabId, action, context = {}) {
 
   if (type === "DoneAction" || type === "FinishAction") {
     return { success: true, done: true };
-  }
-  if (isReportResultActionType(type)) {
-    return {
-      success: true,
-      done: true,
-      detail: extractFinalTextFromResultAction(action) || "Result reported."
-    };
   }
 
   if (type === "WaitAction") {

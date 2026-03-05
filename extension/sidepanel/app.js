@@ -408,7 +408,6 @@ function eventIconMeta(event) {
   if (type === "run_result") return { icon: "check", className: "icon-result", label: "Result" };
   if (type.includes("failed") || type.includes("error")) return { icon: "alert", className: "icon-error", label: "Error" };
   if (type === "action") {
-    if (actionType.includes("reportresult") || actionType.includes("report_result")) return { icon: "check", className: "icon-result", label: "Result" };
     if (actionType.includes("click")) return { icon: "pointer", className: "icon-action", label: "Click" };
     if (actionType.includes("type") || actionType.includes("fill")) return { icon: "type", className: "icon-action", label: "Type" };
     if (actionType.includes("navigate")) return { icon: "compass", className: "icon-action", label: "Navigate" };
